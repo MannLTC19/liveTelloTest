@@ -1,57 +1,53 @@
-#liveTelloTest: ORB-SLAM2 for DJI Tello
+# liveTelloTest: Real-Time ORB-SLAM2 for DJI Tello
 
-liveTelloTest is a real-time Simultaneous Localization and Mapping (SLAM) implementation for the DJI Tello drone. It bridges high-performance C++ SLAM (ORB-SLAM2) with Python-based drone control (djitellopy) using Pybind11.
+**liveTelloTest** is a project that bridges the **DJI Tello** drone with the **ORB-SLAM2** system. It allows for real-time monocular SLAM (Simultaneous Localization and Mapping) by feeding the drone's live video stream directly into a C++ SLAM backend wrapped for Python.
 
-This project allows you to stream live video from a Tello drone, feed it directly into the ORB-SLAM2 system, and visualize the camera trajectory and sparse point cloud in real-time using Pangolin.
-🌟 Features
+This repository includes the necessary bindings to run ORB-SLAM2 via Python, scripts to handle the Tello video feed reliably, and tools for trajectory accuracy analysis.
 
-    Real-time SLAM: Runs ORB-SLAM2 Monocular mode on the Tello's video feed.
+## 🌟 Features
 
-Python/C++ Integration: Custom ORBSLAMRunner C++ class wrapped for Python using Pybind11 for efficient image processing.
+* **Real-time SLAM:** Runs ORB-SLAM2 Monocular mode on live Tello video footage.
+* **Python Bindings:** Custom C++ wrapper (`orbslam_runner.cpp`) using **Pybind11** to interface between Python logic and the ORB-SLAM2 C++ library.
+* **Stream Stability:** Includes a "watchdog" mechanism in `liveTest.py` to automatically restart the video stream if frames stall.
+* **Trajectory Evaluation:** Includes `calc.py` to calculate **WAPE** (Weighted Absolute Percentage Error) and Euclidean distance margins to evaluate tracking accuracy.
+* **Video Piping:** `liveTelloViaPipe.py` allows streaming video to a named pipe (FIFO) for integration with other tools like FFmpeg.
 
-Live Stream Handling: Includes "watchdog" logic to restart the video stream if frames stall.
+## 📂 Project Structure
 
-Evaluation Tools: Includes calc.py to calculate Weighted Absolute Percentage Error (WAPE) and trajectory difference margins for accuracy analysis.
+| File | Description |
+| :--- | :--- |
+| `liveTest.py` | **Main entry point.** Connects to Tello, initializes SLAM, and processes the video stream. |
+| `orbslam_runner.cpp` | C++ source code creating the Python bindings for ORB-SLAM2. |
+| `Tello.yaml` | Camera calibration parameters (Intrinsics/Distortion) for the Tello drone. |
+| `calc.py` | Metrics script to calculate position/orientation errors (WAPE) from trajectory CSVs. |
+| `liveTelloViaPipe.py` | Utility to write video frames to a named pipe (`/tmp/tello_pipe`). |
+| `screencap.py` | Utility to capture screen regions (using `mss`). |
 
-Alternative Streaming: Includes liveTelloViaPipe.py to stream video to a named pipe (useful for FFmpeg integration).
+## 🛠️ Prerequisites
 
-🛠️ Prerequisites
+### Hardware
+* **DJI Tello Drone**
+* Computer with Wi-Fi (Linux recommended for ORB-SLAM2 compatibility)
 
-    OS: Linux (Tested on Ubuntu/Debian based systems)
+### Software
+* **Python 3.10+**
+* **ORB-SLAM2** (You must have the library built and installed on your system)
+* **Pangolin** (Viewer for ORB-SLAM2)
+* **OpenCV** (C++ and Python)
 
-    Python: 3.x
+### Python Dependencies
+Install the required Python packages:
+```bash
+pip install djitellopy opencv-python pandas numpy pybind11 mss
 
-    C++ Libraries:
+⚙️ Installation & Setup
+1. Compile the C++ Binding
 
-        ORB-SLAM2 (Built and installed)
+Before running the Python scripts, you must compile orbslam_runner.cpp into a shared object (.so) file that Python can import.
 
-        Pangolin (Required by ORB-SLAM2)
-
-        OpenCV (C++ and Python versions)
-
-        Eigen3
-
-    Python Libraries:
-    Bash
-
-    pip install djitellopy opencv-python pandas numpy pybind11
-
-📦 Installation & Build
-
-Since this project uses a C++ extension for SLAM, you must compile the orbslam_runner module before running the Python scripts.
-
-    Clone the repository:
-    Bash
-
-git clone https://github.com/MannLTC19/liveTelloTest.git
-cd liveTelloTest
-
-Compile the C++ Binding: You need to compile orbslam_runner.cpp into a shared object (.so) file. Ensure you have the ORB-SLAM2 source code available.
-
-Example CMake approach (create a CMakeLists.txt or use g++ directly):
+Use the following command (adjust paths to your specific ORB-SLAM2 installation):
 Bash
 
-# Example g++ command (adjust paths to your ORB_SLAM2 installation)
 c++ -O3 -Wall -shared -std=c++11 -fPIC \
 $(python3 -m pybind11 --includes) \
 -I/path/to/ORB_SLAM2/include \
@@ -61,67 +57,51 @@ orbslam_runner.cpp \
 -lopencv_core -lopencv_imgproc -lopencv_highgui -lopencv_videoio \
 -o orbslam_runner$(python3-config --extension-suffix)
 
-Ensure the resulting .so file is in the same directory as liveTest.py.
+Make sure the resulting .so file (e.g., orbslam_runner.cpython-310-x86_64-linux-gnu.so) is in the same directory as liveTest.py.
+2. Configure Paths
 
-Configure Paths: Edit liveTest.py (or liveTest1.py) to point to your specific ORB-SLAM2 vocabulary and calibration files:
+Open liveTest.py and update the paths to point to your ORB-SLAM2 vocabulary and the Tello.yaml file included in this repo:
 Python
 
-    # Inside liveTest.py
-    ORB_VOCAB = "/path/to/ORB_SLAM2/Vocabulary/ORBvoc.txt"
-    ORB_YAML  = "./Tello.yaml" 
+# liveTest.py
+ORB_VOCAB = "/path/to/YOUR/ORB_SLAM2/Vocabulary/ORBvoc.txt"
+ORB_YAML  = "./Tello.yaml"
 
 🚀 Usage
-1. Run Real-time SLAM
+Running Real-Time SLAM
 
-Connect your computer to the Tello's Wi-Fi and run:
-Bash
+    Power on the Tello drone.
 
-python liveTest.py
+    Connect your computer to the Tello's Wi-Fi network (usually TELLO-XXXXXX).
 
-This will:
+    Run the main script:
+    Bash
 
-    Connect to the Tello drone.
+    python liveTest.py
 
-Start the video stream.
+        This will launch the Pangolin viewer showing the map and camera pose.
 
-Launch the Pangolin viewer (from ORB-SLAM2) to show the map and drone pose.
+        The drone video stream is processed in real-time.
 
-2. Camera Calibration (Tello.yaml)
+Evaluating Trajectory Data
 
-The file Tello.yaml contains the intrinsic parameters for the Tello camera. If you change the resolution in the script (default 960x720), update this file accordingly.
+If you have a CSV file containing trajectory data (Actual vs Forecast), you can generate error metrics:
 
-YAML
+    Open calc.py and set the file_name variable to your CSV file path.
 
-Camera.width: 960
-Camera.height: 720
-Camera.fx: 920.0
-# ...
+    Run the script:
+    Bash
 
-3. Trajectory Analysis
+    python calc.py
 
-If you have saved trajectory data (CSV), you can use calc.py to compare actual vs. forecast positions:
-Bash
+        This generates WAPE_Analysis_Results.csv and Difference_Margins.csv.
 
-python calc.py
+🔧 Troubleshooting
 
-Note: Update the file_name variable in calc.py to match your data file.
+    "Frame stalled - restarting stream": The script detects if the video feed freezes and attempts to restart it. If this happens frequently, check for Wi-Fi interference.
 
-📂 Project Structure
+    ImportError: No module named 'orbslam_runner': Ensure the .so file is compiled for the exact version of Python you are running.
 
-    liveTest.py: Main script for running SLAM with Tello.
+    Segmentation Fault: This often occurs due to mismatches between the OpenCV version used by ORB-SLAM2 (C++) and the opencv-python library. Ensure they are compatible (preferably the same major version).
 
-    orbslam_runner.cpp: C++ source for the Python wrapper.
-
-    Tello.yaml: Calibration file for ORB-SLAM2.
-
-    calc.py: Script for calculating WAPE and position error metrics.
-
-    liveTelloViaPipe.py: Utility to push Tello video to a named system pipe.
-
-    screencap.py: Utility for capturing screen regions (using mss).
-
-⚠️ Troubleshooting
-
-    "Frame stalled": The script includes a watchdog that attempts to restart the stream if frames are lost. Ensure Wi-Fi interference is minimal.
-
-Shared Object Error: If Python cannot import orbslam_runner, ensure the .so file was compiled for the exact Python version you are using.
+Created for the Live Tello SLAM Project.
