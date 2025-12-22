@@ -66,6 +66,7 @@ Python
 # liveTest.py
 ORB_VOCAB = "/path/to/YOUR/ORB_SLAM2/Vocabulary/ORBvoc.txt"
 ORB_YAML  = "./Tello.yaml"
+```
 
 🚀 Usage
 Running Real-Time SLAM
