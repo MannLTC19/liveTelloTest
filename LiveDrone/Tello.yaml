@@ -1,41 +1,51 @@
 %YAML:1.0
 
-# ===============================
-# Camera Parameters
-# ===============================
+# --------------------------------------------------------------------------------------------
+# Camera Parameters (DJI Tello)
+# --------------------------------------------------------------------------------------------
 
 Camera.type: "PinHole"
 
-# Image size (match your resize)
+# Image resolution
 Camera.width: 960
 Camera.height: 720
 
-# Camera intrinsics (approx DJI Tello)
+# Camera calibration parameters
+# These values are commonly used / empirically stable for Tello
 Camera.fx: 920.0
 Camera.fy: 920.0
 Camera.cx: 480.0
 Camera.cy: 360.0
 
-# Distortion (Tello has very small distortion)
+# Distortion parameters (Tello stream is already rectified)
 Camera.k1: 0.0
 Camera.k2: 0.0
 Camera.p1: 0.0
 Camera.p2: 0.0
 Camera.k3: 0.0
 
-# ===============================
-# ORB Extractor Parameters
-# ===============================
+# Camera frames per second
+Camera.fps: 25.0
 
-ORBextractor.nFeatures: 1200
+# RGB order (Tello uses RGB, not BGR)
+Camera.RGB: 1
+
+# Depth threshold (unused for monocular, but required)
+ThDepth: 40.0
+
+# --------------------------------------------------------------------------------------------
+# ORB Extractor Parameters
+# --------------------------------------------------------------------------------------------
+
+ORBextractor.nFeatures: 2000
 ORBextractor.scaleFactor: 1.2
 ORBextractor.nLevels: 8
 ORBextractor.iniThFAST: 20
 ORBextractor.minThFAST: 7
 
-# ===============================
+# --------------------------------------------------------------------------------------------
 # Viewer Parameters
-# ===============================
+# --------------------------------------------------------------------------------------------
 
 Viewer.KeyFrameSize: 0.05
 Viewer.KeyFrameLineWidth: 1
@@ -47,14 +57,3 @@ Viewer.ViewpointX: 0
 Viewer.ViewpointY: -0.7
 Viewer.ViewpointZ: -1.8
 Viewer.ViewpointF: 500
-
-# ===============================
-# System Parameters
-# ===============================
-
-# Frame rate (Tello ≈ 30 fps, but SLAM prefers lower)
-Camera.fps: 30
-
-# Color order (OpenCV uses BGR)
-Camera.RGB: 1
-
