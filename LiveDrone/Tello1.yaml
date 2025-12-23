@@ -1,0 +1,60 @@
+%YAML:1.0
+
+# ===============================
+# Camera Parameters
+# ===============================
+
+Camera.type: "PinHole"
+
+# Image size (downscaled from Tello 960x720 → 640x480)
+Camera.width: 640
+Camera.height: 480
+
+# Camera intrinsics (scaled accordingly)
+Camera.fx: 613.33   # 920 * 640 / 960
+Camera.fy: 613.33   # 920 * 480 / 720
+Camera.cx: 320      # 480 * 640 / 960
+Camera.cy: 240      # 360 * 480 / 720
+
+# Distortion (Tello has very small distortion)
+Camera.k1: 0.0
+Camera.k2: 0.0
+Camera.p1: 0.0
+Camera.p2: 0.0
+Camera.k3: 0.0
+
+# ===============================
+# ORB Extractor Parameters
+# ===============================
+
+ORBextractor.nFeatures: 800
+ORBextractor.scaleFactor: 1.2
+ORBextractor.nLevels: 8
+ORBextractor.iniThFAST: 20
+ORBextractor.minThFAST: 7
+
+# ===============================
+# Viewer Parameters
+# ===============================
+
+Viewer.KeyFrameSize: 0.05
+Viewer.KeyFrameLineWidth: 1
+Viewer.GraphLineWidth: 0.9
+Viewer.PointSize: 2
+Viewer.CameraSize: 0.08
+Viewer.CameraLineWidth: 3
+Viewer.ViewpointX: 0
+Viewer.ViewpointY: -0.7
+Viewer.ViewpointZ: -1.8
+Viewer.ViewpointF: 500
+
+# ===============================
+# System Parameters
+# ===============================
+
+# Frame rate (throttled to reduce load)
+Camera.fps: 25
+
+# Color order (OpenCV uses BGR)
+Camera.RGB: 1
+
